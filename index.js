@@ -35,7 +35,7 @@ app.get('/books', (req, res) => {
 // Endpoint para obtener un libro por su id
 app.get('/books/:id', (req, res) => {
     const data = readData();
-    const book = data.books.find(book => book.id === req.params.id);
+    const book = data.books.find(book => book.id === parseInt(req.params.id));
     res.send(book);
 });
 
