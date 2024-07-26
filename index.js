@@ -1,45 +1,82 @@
-import express from 'express'; //Permite crear el servidor
-import fs from 'fs'; //Permite trabajar con archivos
+import express from "express"; 
+import fs from "fs"; //Permite trabajar con archivos
+import bodyParser from "body-parser"; //Permite trabajar con el cuerpo de las peticiones
 
 const app = express();
+app.use(bodyParser.json());
 
 const readData = () => {
     try {
-        const data = fs.readFileSync('./db.json');
+        const data = fs.readFileSync("./db.json");
         return JSON.parse(data);
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 const writeData = (data) => {
     try {
-        fs.writeFileSync('./db.json', JSON.stringify(data));
+        fs.writeFileSync("./db.json", JSON.stringify(data));
     } catch (error) {
         console.log(error);
     }
-}
+};
 
-// Creación de endpoint
-app.get('/', (req, res) => {
-    res.send("Welcome to my API!");
+app.get("/", (req, res) => {
+    res.send("Welcome to my first API with Node js!");
 });
 
 // Endpoint para obtener todos los libros
-app.get('/books', (req, res) => {
+app.get("/books", (req, res) => {
     const data = readData();
-    // Obtener solo los libros
-    res.send(data.books);
+    res.json(data.books);
 });
 
 // Endpoint para obtener un libro por su id
-app.get('/books/:id', (req, res) => {
+app.get("/books/:id", (req, res) => {
     const data = readData();
-    const book = data.books.find(book => book.id === parseInt(req.params.id));
-    res.send(book);
+    const id = parseInt(req.params.id);
+    const book = data.books.find((book) => book.id === id);
+    res.json(book);
+});
+
+// Endpoint para crear un libro
+app.post("/books", (req, res) => {
+    const data = readData();
+    const body = req.body;
+    const newBook = {
+        id: data.books.length + 1,
+        ...body,
+    };
+    data.books.push(newBook);
+    writeData(data);
+    res.json(newBook);
+});
+
+// Endpoint para actualizar un libro
+app.put("/books/:id", (req, res) => {
+    const data = readData();
+    const body = req.body;
+    const id = parseInt(req.params.id);
+    const bookIndex = data.books.findIndex((book) => book.id === id);
+    data.books[bookIndex] = {
+        ...data.books[bookIndex],
+        ...body,
+    };
+    writeData(data);
+    res.json({ message: "Book updated successfully" });
+});
+
+// Endpoint para eliminar un libro
+app.delete("/books/:id", (req, res) => {
+    const data = readData();
+    const id = parseInt(req.params.id);
+    const bookIndex = data.books.findIndex((book) => book.id === id);
+    data.books.splice(bookIndex, 1);
+    writeData(data);
+    res.json({ message: "Book deleted successfully" });
 });
 
 app.listen(3000, () => {
-    console.log('Server is running on port 3000!');
+    console.log("Server listening on port 3000");
 });
-
