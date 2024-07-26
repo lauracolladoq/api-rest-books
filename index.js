@@ -26,6 +26,7 @@ app.get("/", (req, res) => {
     res.send("Welcome to my first API with Node js!");
 });
 
+// ------------------------------------------- BOOKS -------------------------------------------
 // Endpoint para obtener todos los libros
 app.get("/books", (req, res) => {
     const data = readData();
@@ -75,6 +76,58 @@ app.delete("/books/:id", (req, res) => {
     data.books.splice(bookIndex, 1);
     writeData(data);
     res.json({ message: "Book deleted successfully" });
+});
+
+// ------------------------------------------- MAGAZINES -------------------------------------------
+// Endpoint para obtener todos las revistas
+app.get("/magazines", (req, res) => {
+    const data = readData();
+    res.json(data.magazines);
+});
+
+// Endpoint para obtener una revista por su id
+app.get("/magazines/:id", (req, res) => {
+    const data = readData();
+    const id = parseInt(req.params.id);
+    const magazine = data.magazines.find((magazine) => magazine.id === id);
+    res.json(magazine);
+});
+
+// Endpoint para crear una revista
+app.post("/magazines", (req, res) => {
+    const data = readData();
+    const body = req.body;
+    const newmagazine = {
+        id: data.magazines.length + 1,
+        ...body,
+    };
+    data.magazines.push(newmagazine);
+    writeData(data);
+    res.json(newmagazine);
+});
+
+// Endpoint para actualizar una revista
+app.put("/magazines/:id", (req, res) => {
+    const data = readData();
+    const body = req.body;
+    const id = parseInt(req.params.id);
+    const magazineIndex = data.magazines.findIndex((magazine) => magazine.id === id);
+    data.magazines[magazineIndex] = {
+        ...data.magazines[magazineIndex],
+        ...body,
+    };
+    writeData(data);
+    res.json({ message: "Magazine updated successfully" });
+});
+
+// Endpoint para eliminar una revista
+app.delete("/magazines/:id", (req, res) => {
+    const data = readData();
+    const id = parseInt(req.params.id);
+    const magazineIndex = data.magazines.findIndex((magazine) => magazine.id === id);
+    data.magazines.splice(magazineIndex, 1);
+    writeData(data);
+    res.json({ message: "Magazine deleted successfully" });
 });
 
 app.listen(3000, () => {
